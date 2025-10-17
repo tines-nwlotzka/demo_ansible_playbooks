@@ -1,34 +1,26 @@
 ---
 # This playbook is designed to be pulled and modified by an external automation tool (like Tines).
-# The goal is to dynamically change the message that is sent to the target host.
+# We add a pause here to ensure the job is visible in the 'Running' state for the demo.
 
 - name: Display Dynamic System Status
-  # The 'all' keyword runs this against every host in the Inventory, 
-  # but since we are only using the 'debug' module, it won't actually change anything.
-  hosts: all 
-  gather_facts: no
+  hosts: localhost 
+  gather_facts: yes
+  connection: local
 
-  # 1. Define the variable to be modified by the external system (Tines)
-  # When Tines pulls the file, it will look for and change this line.
   vars:
     deployment_status: "Default Status: Playbook has not yet been updated by Tines."
 
   tasks:
-    - name: Ensure Python is available for the 'debug' module (optional, but good practice)
-      # We use the raw module sparingly, but here it guarantees execution without Python dependencies
-      # on extremely minimal targets.
-      ansible.builtin.raw: /usr/bin/env python -V
-      changed_when: false
-      
     - name: Log the current deployment status message
-      # The 'debug' module simply prints a message during the job run, 
-      # making it easy to confirm the change via the AAP job output.
       ansible.builtin.debug:
         msg: "--- Current System Message: {{ deployment_status }} ---"
 
-    - name: Simulate a lightweight change on the host (for audit logs)
-      # This task simulates a real action that an external tool might trigger.
+    - name: PAUSE: Keep job running for 10 seconds to allow manual verification in the UI
+      # This task is added to make the job visible as 'Running' in the AAP Jobs list.
+      ansible.builtin.pause:
+        seconds: 10
+      delegate_to: localhost # Ensures the pause runs on the control node
+
+    - name: Simulate a lightweight change (Writing to a temporary log file inside the EE)
       ansible.builtin.command:
         cmd: "echo 'Deployment status was logged on {{ ansible_date_time.iso8601_micro }}' >> /tmp/ansible_demo.log"
-      delegate_to: "{{ inventory_hostname }}"
-      
