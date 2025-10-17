@@ -9,7 +9,8 @@
   gather_facts: no
   
   # *** FIX: Specify that Ansible should run commands locally without using SSH. ***
-  ansible.builtin.connection: local
+  # The correct keyword is 'connection', not 'ansible.builtin.connection'.
+  connection: local
 
   # 1. Define the variable to be modified by the external system (Tines)
   # When Tines pulls the file, it will look for and change this line.
