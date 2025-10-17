@@ -8,7 +8,8 @@
   connection: local
 
   vars:
-    deployment_status: "Default Status: Playbook has not yet been updated by Tines."
+    deployment_status: >
+      "Default Status: Playbook has not yet been updated by Tines."
 
   tasks:
     - name: Log the current deployment status message
