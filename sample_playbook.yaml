@@ -1,32 +1,21 @@
 ---
-# This playbook is designed to be pulled and modified by an external automation tool (like Tines).
-# The goal is to dynamically change the message that is sent to the target host.
-
-- name: Display Dynamic System Status
-  # We are explicitly running this against 'localhost' since the tasks are just
-  # for demonstration/logging and do not require a separate remote server.
-  hosts: localhost 
-  
-  # *** FIX: Must enable fact gathering to use system variables like ansible_date_time. ***
-  gather_facts: yes
-  
-  # The correct keyword is 'connection', not 'ansible.builtin.connection'.
-  connection: local
-
-  # 1. Define the variable to be modified by the external system (Tines)
-  # When Tines pulls the file, it will look for and change this line.
-  vars:
-    deployment_status: "Default Status: Playbook has not yet been updated by Tines."
-
-  tasks:
-    # Removed the 'raw' task as connection is verified and it's unnecessary noise in the demo output.
-
-    - name: Log the current deployment status message
-      # The 'debug' module is the most important task for the demo, showing the variable change.
-      ansible.builtin.debug:
-        msg: "--- Current System Message: {{ deployment_status }} ---"
-
-    - name: Simulate a lightweight change (Writing to a temporary log file inside the EE)
-      # This task now runs inside the execution environment container and uses the now-available fact.
-      ansible.builtin.command:
-        cmd: "echo 'Deployment status was logged on {{ ansible_date_time.iso8601_micro }}' >> /tmp/ansible_demo.log"
+"    ---\n# This playbook is designed to be pulled and modified by an external automation\
+  \ tool (like Tines).\n# The goal is to dynamically change the message that is sent\
+  \ to the target host.\n\n- name: Display Dynamic System Status\n  # We are explicitly\
+  \ running this against 'localhost' since the tasks are just\n  # for demonstration/logging\
+  \ and do not require a separate remote server.\n  hosts: localhost \n  \n  # ***\
+  \ FIX: Must enable fact gathering to use system variables like ansible_date_time.\
+  \ ***\n  gather_facts: yes\n  \n  # The correct keyword is 'connection', not 'ansible.builtin.connection'.\n\
+  \  connection: local\n\n  # 1. Define the variable to be modified by the external\
+  \ system (Tines)\n  # When Tines pulls the file, it will look for and change this\
+  \ line.\n  vars:\n    deployment_status: \"Default Status: Playbook has been updated\
+  \ by Tines.\"\n\n  tasks:\n    # Removed the 'raw' task as connection is verified\
+  \ and it's unnecessary noise in the demo output.\n\n    - name: Log the current\
+  \ deployment status message\n      # The 'debug' module is the most important task\
+  \ for the demo, showing the variable change.\n      ansible.builtin.debug:\n   \
+  \     msg: \"--- Current System Message: {{ deployment_status }} ---\"\n\n    -\
+  \ name: Simulate a lightweight change (Writing to a temporary log file inside the\
+  \ EE)\n      # This task now runs inside the execution environment container and\
+  \ uses the now-available fact.\n      ansible.builtin.command:\n        cmd: \"\
+  echo 'Deployment status was logged on {{ ansible_date_time.iso8601_micro }}' >>\
+  \ /tmp/ansible_demo.log\"\n"
