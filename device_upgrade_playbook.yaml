@@ -1,0 +1,46 @@
+---
+# This playbook simulates a code upgrade during a maintenance window.
+# It demonstrates variable injection from Tines (site_id, target_hostname).
+
+- name: Execute Maintenance Window Code Upgrade
+  hosts: localhost
+  gather_facts: yes
+  connection: local
+
+  vars:
+    # Default values that Tines will override via 'extra_vars' in the API call
+    site_id: "UNKNOWN_SITE"
+    target_hostname: "UNDEFINED_HOST"
+    upgrade_version: "v2.4.0"
+
+  tasks:
+    - name: Verify Maintenance Window Details
+      ansible.builtin.debug:
+        msg: 
+          - "--- MAINTENANCE UPGRADE START ---"
+          - "Site ID: {{ site_id }}"
+          - "Target Host: {{ target_hostname }}"
+          - "Target Version: {{ upgrade_version }}"
+          - "Window Start: {{ ansible_date_time.iso8601 }}"
+          - "-------------------------------"
+
+    - name: Simulate Pre-Upgrade Health Check
+      ansible.builtin.debug:
+        msg: "Checking connectivity and service status for {{ target_hostname }} at Site {{ site_id }}..."
+
+    - name: Simulate Code Upgrade Process
+      # Using 'pause' to simulate the time it takes for a real upgrade
+      ansible.builtin.pause:
+        seconds: 5
+        prompt: "Upgrading {{ target_hostname }} to {{ upgrade_version }}..."
+
+    - name: Log Upgrade Completion to Audit File
+      # In a real demo, this logs the action within the Execution Environment
+      ansible.builtin.lineinfile:
+        path: /tmp/maintenance_audit.log
+        line: "{{ ansible_date_time.iso8601 }} - SITE: {{ site_id }} - HOST: {{ target_hostname }} - STATUS: SUCCESS - VERSION: {{ upgrade_version }}"
+        create: yes
+
+    - name: Final Status Summary
+      ansible.builtin.debug:
+        msg: "Upgrade of {{ target_hostname }} (Site {{ site_id }}) completed successfully."
